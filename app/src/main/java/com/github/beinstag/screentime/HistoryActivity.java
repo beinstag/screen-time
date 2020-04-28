@@ -1,13 +1,11 @@
-package com.example.screentimer;
+package com.github.beinstag.screentime;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -86,8 +84,6 @@ public class HistoryActivity extends Activity {
 
 
     static class MyValueFormatter extends ValueFormatter {
-        private StringBuilder format = new StringBuilder();
-
         // override this for e.g. LineChart or ScatterChart
         @Override
         public String getPointLabel(Entry e) {
@@ -99,17 +95,13 @@ public class HistoryActivity extends Activity {
             return parseDuration((int)barEntry.getY());
         }
 
-        // override this for custom formatting of XAxis or YAxis labels
-        /*public String getAxisLabel(Float value, AxisBase axis) {
-            return format.format(value);
-        }*/
     }
 
-    static class MyXAxisFormatter extends ValueFormatter {
+    /*static class MyXAxisFormatter extends ValueFormatter {
         @SuppressLint("DefaultLocale")
         @Override
         public String getAxisLabel(float value, AxisBase axis) {
             return dates.get((int)value % dates.size());
         }
-    }
+    }*/
 }

@@ -1,4 +1,4 @@
-package com.example.screentimer;
+package com.github.beinstag.screentime;
 
 import android.content.Context;
 import android.content.SharedPreferences;
