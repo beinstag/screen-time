@@ -1,0 +1,16 @@
+2020-04-20 13:38:23.193 27819-27846/com.example.screentimer E/TaskStackBuilder: Bad ComponentName while traversing activity parent metadata
+2020-04-20 13:38:23.198 27819-27846/com.example.screentimer E/AndroidRuntime: FATAL EXCEPTION: Timer-0
+    Process: com.example.screentimer, PID: 27819
+    java.lang.IllegalArgumentException: android.content.pm.PackageManager$NameNotFoundException: ComponentInfo{com.example.screentimer/com.example.screentimer.HistoryActivity}
+        at android.app.TaskStackBuilder.addParentStack(TaskStackBuilder.java:181)
+        at android.app.TaskStackBuilder.addNextIntentWithParentStack(TaskStackBuilder.java:112)
+        at com.example.screentimer.MainActivity$1.run(MainActivity.java:110)
+        at java.util.TimerThread.mainLoop(Timer.java:562)
+        at java.util.TimerThread.run(Timer.java:512)
+     Caused by: android.content.pm.PackageManager$NameNotFoundException: ComponentInfo{com.example.screentimer/com.example.screentimer.HistoryActivity}
+        at android.app.ApplicationPackageManager.getActivityInfo(ApplicationPackageManager.java:435)
+        at android.app.TaskStackBuilder.addParentStack(TaskStackBuilder.java:168)
+        at android.app.TaskStackBuilder.addNextIntentWithParentStack(TaskStackBuilder.java:112) 
+        at com.example.screentimer.MainActivity$1.run(MainActivity.java:110) 
+        at java.util.TimerThread.mainLoop(Timer.java:562) 
+        at java.util.TimerThread.run(Timer.java:512) 
