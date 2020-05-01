@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Teemer</string>
+    <string name="app_name">Temps d\'Écran</string>
     <string name="days">" jours "</string>
     <string name="hours">" heures "</string>
     <string name="minutes">" minutes "</string>
     <string name="timespent">"Tu as passé "</string>
-    <string name="onyourphone">" secondes sur ton écran."</string>
-    <string name="notificationTitle">Temps d\'écran</string>
+    <string name="onyourphone">" sur ton écran."</string>
+    <string name="notificationTitle">Aujourd\'hui</string>
     <string name="icon">icône</string>
-    <string name="seconds">" secondes "</string>
+    <string name="seconds">" secondes"</string>
 </resources>

@@ -23,33 +23,57 @@ import java.util.TimerTask;
 
 @SuppressLint("Registered")
 public class MyService extends Service {
-    private final String CHANNEL_ID = "personal_notifications";
+
     private final int NOTIFICATION_ID = 1;
-
-    private NotificationManager notificationManager;
-    private static Timer timer;
-
     private int screenDuration;
-    private NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID);
+
+    private NotificationCompat.Builder notificationBuilder;
+    private NotificationManager notificationManager;
+
+    private static Timer timer;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        createNotificationChannel();
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        String CHANNEL_ID = "MyServiceChannel";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            if (notificationManager != null) {
+                CharSequence name = "PersonalNotifications";
+                String description = "Include all personal notifications.";
+                int importance = NotificationManager.IMPORTANCE_LOW;
+                NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+                notificationChannel.setDescription(description);
+                assert (notificationManager != null);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        Intent notificationIntent = new Intent(this, HistoryActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Foreground Service")
-                .setContentText("input")
-                .setSmallIcon(R.drawable.ic_time)
+        notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID);
+        Notification notification = notificationBuilder
+                .setContentTitle(getString(R.string.notificationTitle))
+                .setContentText(getString(R.string.timespent))
+                .setSmallIcon(R.drawable.ic_screentime_notif)
                 .setContentIntent(pendingIntent)
                 .build();
 
-        startForeground(1, notification);
+        startForeground(NOTIFICATION_ID, notification);
+    }
 
-        //do heavy work on a background thread
+    private void updateWidget() {
+        Intent intent = new Intent(this, SimpleWidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), SimpleWidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        //creates a timer which will increment the duration each seconds that the screen is interactive
         if (timer == null) {
             timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -64,7 +88,7 @@ public class MyService extends Service {
                             if (!dataManager.isTodayNewDayOfData()) { // If it's not a new day
                                 screenDuration += 1; // Adds one to the screen duration
                             } else {
-                                dataManager.saveDailyScreenDuration(dataManager.loadDate(),screenDuration);
+                                dataManager.saveDailyScreenDuration(dataManager.loadDate(), screenDuration);
                                 screenDuration = 0; // Restarts on a new day (after midnight)
                             }
                         }
@@ -74,7 +98,7 @@ public class MyService extends Service {
                     String sDuration = new DurationParser(getApplicationContext()).parseToTextFormat(screenDuration);
 
                     // Create an Intent for the activity you want to start
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), HistoryActivity.class);
                     // Create the TaskStackBuilder and add the intent, which inflates the back stack
                     TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
                     stackBuilder.addNextIntentWithParentStack(intent);
@@ -83,7 +107,7 @@ public class MyService extends Service {
                             stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
                     notificationBuilder.setContentTitle(getString(R.string.notificationTitle))
-                            .setSmallIcon(R.drawable.ic_time)
+                            .setSmallIcon(R.drawable.ic_screentime_notif)
                             .setContentIntent(resultPendingIntent) //will start intent on click
                             .setContentText(getString(R.string.timespent)
                                     + sDuration
@@ -98,25 +122,11 @@ public class MyService extends Service {
                 }
             }, 0, 1000);// in milliseconds
         }
-    }
-
-    private void updateWidget() {
-        Intent intent = new Intent(this, SimpleWidgetProvider.class);
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), SimpleWidgetProvider.class));
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-        sendBroadcast(intent);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        //String input = intent.getStringExtra("inputExtra");
-
-
         //stopSelf();
 
         return START_STICKY;
     }
+
 
     @Override
     public void onDestroy() {
@@ -129,17 +139,4 @@ public class MyService extends Service {
         return null;
     }
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            if (notificationManager != null) {
-                CharSequence name = "PersonalNotifications";
-                String description = "Include all personal notifications.";
-                int importance = NotificationManager.IMPORTANCE_LOW;
-                NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-                notificationChannel.setDescription(description);
-                notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                assert (notificationManager != null);
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
-    }
 }

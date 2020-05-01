@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Teemer</string>
+    <string name="app_name">Screen Time</string>
     <string name="days">" days "</string>
     <string name="hours">" hours "</string>
     <string name="minutes">" minutes "</string>
-    <string name="seconds">" seconds "</string>
+    <string name="seconds">" seconds"</string>
     <string name="timespent">"You spent "</string>
     <string name="onyourphone">" on your phone."</string>
-    <string name="notificationTitle">Screen Time</string>
+    <string name="notificationTitle">Today</string>
     <string name="icon">icon</string>
 </resources>
