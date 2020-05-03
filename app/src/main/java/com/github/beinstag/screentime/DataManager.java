@@ -12,30 +12,192 @@ import static android.content.Context.MODE_PRIVATE;
 
 class DataManager {
 
-    private Context context;
-
     private final String DATE = "date";
-    private final String SHARED_PREFS;
-    private final String DATE_PREFS = "datePrefs";
+    private SharedPreferences datePreferences;
+    private SharedPreferences hourPreferences;
+    private SharedPreferences sharedPreferences;
+    private final SimpleDateFormat dateFormat, hourFormat;
 
-    private final SimpleDateFormat dateFormat;
     DataManager(Context c) {
-        context = c;
         String DATE_FORMAT = "dd/MM/yyyy";
+        String HOUR_FORMAT = "HH";
         Locale loc = c.getResources().getConfiguration().locale;
         dateFormat = new SimpleDateFormat(DATE_FORMAT, loc);
-        SHARED_PREFS = "sharePrefs";
+        hourFormat = new SimpleDateFormat(HOUR_FORMAT, loc);
+        datePreferences = c.getSharedPreferences("datePrefs", MODE_PRIVATE);
+        hourPreferences = c.getSharedPreferences("hourPrefs", MODE_PRIVATE);
+        sharedPreferences = c.getSharedPreferences("sharePrefs", MODE_PRIVATE);
     }
 
+    /**
+     * @param date
+     * @param screenDuration
+     */
     void saveDailyScreenDuration(String date, int screenDuration) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(date, screenDuration);
         editor.apply();
     }
 
-    private void saveTestData(SharedPreferences.Editor editor) {
 
+    /**
+     * Save screenDuration to Shared Preferences
+     */
+    void saveScreenDuration(int screenDuration) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(dateFormat.format(new Date()), screenDuration);
+        //saveTestData(editor);
+        editor.apply();
+
+        SharedPreferences.Editor dateEditor = datePreferences.edit();
+        editor.putString(DATE, dateFormat.format(new Date()));
+        dateEditor.apply();
+    }
+
+    /**
+     * Returns last date app was used or today's date (if it's used for the first time)
+     *
+     * @return last date app was used or today's date
+     */
+    String loadDate() {
+        return datePreferences.getString(DATE, dateFormat.format(new Date()));
+    }
+
+    /**
+     * Returns duration of past ith day from now in seconds stored in shared preferences or 0
+     *
+     * @param i number of day in the past
+     * @return daily screen duration (in seconds) of the day i past days from now
+     */
+    int loadPastScreenDuration(int i) {
+        return sharedPreferences.getInt(dateFormat.format(yesterday(i)), 0);
+    }
+
+    /**
+     * Returns duration of past ith day from now in seconds stored in shared preferences or 0
+     *
+     * @param i
+     * @return hourly screen duration (in seconds) of the hour i past hours from now
+     */
+    int loadPastHoursScreenDuration(int i) {
+        return hourPreferences.getInt(hourFormat.format(pastHour(i)), 0);
+    }
+
+    /**
+     * Returns duration in seconds stored in shared preferences or 0
+     */
+    int loadScreenDuration() {
+        return sharedPreferences.getInt(dateFormat.format(new Date()), 0);
+    }
+
+    /**
+     * Returns whether date stored (last date DataManager was used) is different from date of day
+     * @return true if current day is different from last day this DataManager was used
+     */
+    boolean isTodayNewDayOfData() {
+        return !loadDate().equals(dateFormat.format(new Date()));
+    }
+
+    /**
+     * Returns screenDuration (in seconds) of current time hour
+     *
+     * @return screenDuration (in seconds) of current time hour
+     */
+    int loadHourlyScreenDuration() {
+        return hourPreferences.getInt(hourFormat.format(new Date()), 0);
+    }
+
+    /**
+     * Returns whether current time hour is a new hour
+     *
+     * @return true if current time hour is different from last time hour this DataManager was used
+     */
+    boolean isNowNewHourOfData() {
+        return !loadTime().equals(hourFormat.format(new Date()));
+    }
+
+    /**
+     * Saves the passed screenDuration to hourly storage shared preferences
+     *
+     * @param hour           HH of the screenDuration to be saved
+     * @param screenDuration hourly screen duration to be saved
+     */
+    void saveHourlyScreenDuration(String hour, int screenDuration) {
+        SharedPreferences.Editor editor = hourPreferences.edit();
+        editor.putInt(hour, screenDuration);
+
+        editor.apply();
+    }
+
+    /**
+     * Saves the passed screenDuration to cucrrent by-hour storage (shared preferences)
+     *
+     * @param screenDuration hourly screen duration to be saved
+     */
+    void saveHScreenDuration(int screenDuration) {
+        SharedPreferences.Editor hourEditor = hourPreferences.edit();
+        hourEditor.putInt(hourFormat.format(new Date()), screenDuration);
+        //saveHourlyTestData(hourEditor);
+        hourEditor.apply();
+    }
+
+    /**
+     * Returns hour HH when this Data Manager was last used or current HH if used for the first time
+     *
+     * @return hour HH when this Data Manager was last used
+     */
+    String loadTime() {
+        String HOUR = "hour";
+        return hourPreferences.getString(HOUR, hourFormat.format(new Date()));
+    }
+
+    /**
+     * Returns hour HH when this Data Manager was last used or current HH if used for the first time
+     *
+     * @return hour HH when this Data Manager was last used
+     */
+    int getDaysCount() {
+        return sharedPreferences.getAll().size();
+    }
+
+    /**
+     * Returns hour HH when this Data Manager was last used or current HH if used for the first time
+     *
+     * @return hour HH when this Data Manager was last used
+     */
+    int getHoursCount() {
+         return hourPreferences.getAll().size();
+    }
+
+    /**
+     * Returns the date (and time) i hours n the past
+     *
+     * @param i number of hours in the past from now
+     * @return past Date minus i hours
+     */
+    private Date pastHour(int i) {
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.HOUR_OF_DAY, -i);
+        return cal.getTime();
+    }
+
+    /**
+     * Returns the date (and time) i days n the past
+     *
+     * @param i number of days in the past from now
+     * @return past Date minus i days
+     */
+    private Date yesterday(int i) {
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -i);
+        return cal.getTime();
+    }
+
+
+
+
+
+    private void saveTestData(SharedPreferences.Editor editor) {
         editor.putInt(dateFormat.format(yesterday(1)), 1000);
         editor.putInt(dateFormat.format(yesterday(2)), 2000);
         editor.putInt(dateFormat.format(yesterday(3)), 3000);
@@ -88,48 +250,31 @@ class DataManager {
     }
 
 
-    /* Save screenDuration to Shared Preferences*/
-    void saveScreenDuration(int screenDuration) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(dateFormat.format(new Date()), screenDuration);
-        //saveTestData(editor);
+    private void saveHourlyTestData(SharedPreferences.Editor editor) {
+        editor.putInt(hourFormat.format(pastHour(1)), 1000);
+        editor.putInt(hourFormat.format(pastHour(2)), 2000);
+        editor.putInt(hourFormat.format(pastHour(3)), 3000);
+        editor.putInt(hourFormat.format(pastHour(4)), 4000);
+        editor.putInt(hourFormat.format(pastHour(5)), 5000);
+        editor.putInt(hourFormat.format(pastHour(6)), 6000);
+        editor.putInt(hourFormat.format(pastHour(7)), 7000);
+        editor.putInt(hourFormat.format(pastHour(8)), 8000);
+        editor.putInt(hourFormat.format(pastHour(9)), 9000);
+        editor.putInt(hourFormat.format(pastHour(10)), 10000);
+        editor.putInt(hourFormat.format(pastHour(11)), 11000);
+        editor.putInt(hourFormat.format(pastHour(12)), 12000);
+        editor.putInt(hourFormat.format(pastHour(13)), 13000);
+        editor.putInt(hourFormat.format(pastHour(14)), 14000);
+        editor.putInt(hourFormat.format(pastHour(15)), 15000);
+        editor.putInt(hourFormat.format(pastHour(16)), 16000);
+        editor.putInt(hourFormat.format(pastHour(17)), 17000);
+        editor.putInt(hourFormat.format(pastHour(18)), 18000);
+        editor.putInt(hourFormat.format(pastHour(19)), 19000);
+        editor.putInt(hourFormat.format(pastHour(20)), 20000);
+        editor.putInt(hourFormat.format(pastHour(21)), 21000);
+        editor.putInt(hourFormat.format(pastHour(22)), 22000);
+        editor.putInt(hourFormat.format(pastHour(23)), 23000);
         editor.apply();
-
-
-        SharedPreferences datePreferences = context.getSharedPreferences(DATE_PREFS, MODE_PRIVATE);
-        SharedPreferences.Editor dateEditor = datePreferences.edit();
-        editor.putString(DATE, dateFormat.format(new Date()));
-        dateEditor.apply();
     }
 
-    /* Returns last date app was used or today's date */
-    String loadDate() {
-        SharedPreferences datePreferences = context.getSharedPreferences(DATE_PREFS, MODE_PRIVATE);
-        return datePreferences.getString(DATE, dateFormat.format(new Date()));
-    }
-
-    /* Returns duration of past ith day from now in seconds stored in shared preferences or 0 */
-    int loadPastScreenDuration(int i) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        return sharedPreferences.getInt(dateFormat.format(yesterday(i)), 0);
-    }
-
-    /* Returns duration in seconds stored in shared preferences or 0 */
-    int loadScreenDuration() {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        return sharedPreferences.getInt(dateFormat.format(new Date()), 0);
-    }
-
-    /* Returns whether date stored (last date app was used) is different from date of day */
-    boolean isTodayNewDayOfData() {
-        return ! loadDate().equals(dateFormat.format(new Date()));
-    }
-
-    /*Returns date of the nth day in the past*/
-    private Date yesterday(int i) {
-        final Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -i);
-        return cal.getTime();
-    }
 }

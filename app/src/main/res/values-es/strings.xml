@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Tiempo de pantalla</string>
+    <string name="months">" meses "</string>
+    <string name="weeks">" semanas "</string>
     <string name="days">" días "</string>
     <string name="hours">" horas "</string>
     <string name="minutes">" minutos "</string>

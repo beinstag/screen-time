@@ -19,7 +19,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
             String sDuration = new DurationParser(context).parseToTimeFormat(screenDuration);
             remoteViews.setTextViewText(R.id.textView, sDuration);
-
+            remoteViews.setTextViewText(R.id.textView2, context.getString(R.string.app_name));
             Intent intent = new Intent(context, HistoryActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
             remoteViews.setOnClickPendingIntent(R.id.linearLayout, pendingIntent);

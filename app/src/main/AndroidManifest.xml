@@ -6,11 +6,13 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application
         android:allowBackup="true"
+        android:configChanges="uiMode"
         android:icon="@mipmap/ic_screentime"
         android:label="@string/app_name"
         android:launchMode="singleInstance"
         android:roundIcon="@mipmap/ic_screentime_round"
         android:theme="@android:style/Animation.Activity"
+
         tools:ignore="AllowBackup">
         <activity
             android:name=".MainActivity"
