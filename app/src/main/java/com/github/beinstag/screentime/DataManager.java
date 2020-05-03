@@ -13,6 +13,7 @@ import static android.content.Context.MODE_PRIVATE;
 class DataManager {
 
     private final String DATE = "date";
+    private final String HOUR = "hour";
     private SharedPreferences datePreferences;
     private SharedPreferences hourPreferences;
     private SharedPreferences sharedPreferences;
@@ -30,8 +31,8 @@ class DataManager {
     }
 
     /**
-     * @param date
-     * @param screenDuration
+     * @param date date of the day
+     * @param screenDuration duration of active screen of day
      */
     void saveDailyScreenDuration(String date, int screenDuration) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -41,16 +42,16 @@ class DataManager {
 
 
     /**
-     * Save screenDuration to Shared Preferences
+     * Save screenDuration to Shared Preferences and saves current date as last saved date.
      */
     void saveScreenDuration(int screenDuration) {
+        String date = dateFormat.format(new Date());
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(dateFormat.format(new Date()), screenDuration);
-        //saveTestData(editor);
+        editor.putInt(date, screenDuration);
         editor.apply();
 
         SharedPreferences.Editor dateEditor = datePreferences.edit();
-        editor.putString(DATE, dateFormat.format(new Date()));
+        editor.putString(DATE, date);
         dateEditor.apply();
     }
 
@@ -76,7 +77,7 @@ class DataManager {
     /**
      * Returns duration of past ith day from now in seconds stored in shared preferences or 0
      *
-     * @param i
+     * @param i nb of hours in the past
      * @return hourly screen duration (in seconds) of the hour i past hours from now
      */
     int loadPastHoursScreenDuration(int i) {
@@ -125,20 +126,22 @@ class DataManager {
     void saveHourlyScreenDuration(String hour, int screenDuration) {
         SharedPreferences.Editor editor = hourPreferences.edit();
         editor.putInt(hour, screenDuration);
-
         editor.apply();
     }
 
     /**
-     * Saves the passed screenDuration to cucrrent by-hour storage (shared preferences)
+     * Saves the passed screenDuration to current by-hour storage (shared preferences)
      *
      * @param screenDuration hourly screen duration to be saved
      */
     void saveHScreenDuration(int screenDuration) {
         SharedPreferences.Editor hourEditor = hourPreferences.edit();
         hourEditor.putInt(hourFormat.format(new Date()), screenDuration);
-        //saveHourlyTestData(hourEditor);
         hourEditor.apply();
+
+        SharedPreferences.Editor hEditor = datePreferences.edit();
+        hEditor.putString(HOUR, hourFormat.format(new Date()));
+        hEditor.apply();
     }
 
     /**
@@ -147,27 +150,16 @@ class DataManager {
      * @return hour HH when this Data Manager was last used
      */
     String loadTime() {
-        String HOUR = "hour";
-        return hourPreferences.getString(HOUR, hourFormat.format(new Date()));
+        return datePreferences.getString(HOUR, hourFormat.format(new Date()));
     }
 
-    /**
-     * Returns hour HH when this Data Manager was last used or current HH if used for the first time
-     *
-     * @return hour HH when this Data Manager was last used
-     */
-    int getDaysCount() {
+    /*int getDaysCount() {
         return sharedPreferences.getAll().size();
     }
 
-    /**
-     * Returns hour HH when this Data Manager was last used or current HH if used for the first time
-     *
-     * @return hour HH when this Data Manager was last used
-     */
     int getHoursCount() {
          return hourPreferences.getAll().size();
-    }
+    }*/
 
     /**
      * Returns the date (and time) i hours n the past
@@ -196,7 +188,7 @@ class DataManager {
 
 
 
-
+/*
     private void saveTestData(SharedPreferences.Editor editor) {
         editor.putInt(dateFormat.format(yesterday(1)), 1000);
         editor.putInt(dateFormat.format(yesterday(2)), 2000);
@@ -275,6 +267,6 @@ class DataManager {
         editor.putInt(hourFormat.format(pastHour(22)), 22000);
         editor.putInt(hourFormat.format(pastHour(23)), 23000);
         editor.apply();
-    }
+    }*/
 
 }

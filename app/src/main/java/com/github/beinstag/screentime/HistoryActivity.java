@@ -49,78 +49,67 @@ public class HistoryActivity extends SwipeActivity {
     int blue, darkBlue;
     int red, darkRed;
     int yellow, darkYellow;
+    int text, background;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        green = getResources().getColor(R.color.colorGreen);
-        darkGreen = getResources().getColor(R.color.colorDarkGreen);
-        blue = getResources().getColor(R.color.colorBlue);
-        darkBlue = getResources().getColor(R.color.colorDarkBlue);
-        red = getResources().getColor(R.color.colorRed);
-        darkRed = getResources().getColor(R.color.colorDarkRed);
-        yellow = getResources().getColor(R.color.colorYellow);
-        darkYellow = getResources().getColor(R.color.colorDarkYellow);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_history);
-        AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        dataManager = new DataManager(getApplicationContext());
-        configuration = getApplicationContext().getResources().getConfiguration();
 
-        barEntries = loadDayDataHistory();
-
-        Button bWeek = findViewById(R.id.button);
         Button bMonth = findViewById(R.id.button2);
         Button bYear = findViewById(R.id.button3);
+        Button bWeek = findViewById(R.id.button);
         Button bDay = findViewById(R.id.button4);
 
+        background = getResources().getColor(R.color.colorBackground);
+        darkYellow = getResources().getColor(R.color.colorDarkYellow);
+        darkGreen = getResources().getColor(R.color.colorDarkGreen);
+        darkBlue = getResources().getColor(R.color.colorDarkBlue);
+        darkRed = getResources().getColor(R.color.colorDarkRed);
+        yellow = getResources().getColor(R.color.colorYellow);
+        green = getResources().getColor(R.color.colorGreen);
+        text = getResources().getColor(R.color.colorText);
+        blue = getResources().getColor(R.color.colorBlue);
+        red = getResources().getColor(R.color.colorRed);
 
-        int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        switch (currentNightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                // Night mode is not active, we're using the light theme
-                break;
-            case Configuration.UI_MODE_NIGHT_YES:
-                // Night mode is active, we're using dark theme
-                break;
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bDay.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    barEntries = loadDayDataHistory();
-                    presentChart(barEntries,
-                            getResources().getColor(R.color.colorYellow));
-                }
-            });
-            bWeek.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    barEntries = loadWeekDataHistory();
-                    presentChart(barEntries,
-                            getResources().getColor(R.color.colorBlue));
-                }
-            });
-            bMonth.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    barEntries = loadMonthDataHistory();
-                    presentChart(barEntries,
-                            getResources().getColor(R.color.colorRed));
-                }
-            });
-            bYear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    barEntries = loadYearDataHistory();
-                    presentChart(barEntries,
-                            getResources().getColor(R.color.colorGreen));
-                }
-            });
-        }
-        presentChart(barEntries,
-                getResources().getColor(R.color.colorYellow));
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        configuration = getApplicationContext().getResources().getConfiguration();
+        dataManager = new DataManager(getApplicationContext());
+        barEntries = loadDayDataHistory();
+
+
+        bDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                barEntries = loadDayDataHistory();
+                presentChart(barEntries, yellow);
+            }
+        });
+        bWeek.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                barEntries = loadWeekDataHistory();
+                presentChart(barEntries, blue);
+            }
+        });
+        bMonth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                barEntries = loadMonthDataHistory();
+                presentChart(barEntries, red);
+            }
+        });
+        bYear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                barEntries = loadYearDataHistory();
+                presentChart(barEntries, green);
+            }
+        });
+
+        presentChart(barEntries, yellow);
     }
 
     @Override
@@ -190,9 +179,7 @@ public class HistoryActivity extends SwipeActivity {
 
             final Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DATE, -DAYS_IN_WEEK * i);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                barLabels.add("" + cal.get(Calendar.WEEK_OF_YEAR));
-            }
+            barLabels.add("" + cal.get(Calendar.WEEK_OF_YEAR));
         }
         return entries;
     }
@@ -234,44 +221,50 @@ public class HistoryActivity extends SwipeActivity {
         assert wp != null;
         Display display = wp.getDefaultDisplay();
         Point size = new Point();
-        display.getSize(size);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            display.getSize(size);
+        }
         BarDataSet dataSet = new BarDataSet(entries, getString(R.string.app_name)); // add entries to dataset
         dataSet.setColors(color);
-        dataSet.setValueTextColor(getResources().getColor(R.color.colorText));
-        dataSet.setBarShadowColor(getResources().getColor(R.color.colorBackground));
+        dataSet.setValueTextColor(text);
+        dataSet.setBarShadowColor(background);
         dataSet.setHighlightEnabled(false);
         XAxis xAxis = barChart.getXAxis();
         YAxis yLAxis = barChart.getAxisLeft();
         YAxis yRAxis = barChart.getAxisRight();
         xAxis.setEnabled(true);
-        xAxis.setAxisLineColor(getResources().getColor(R.color.colorText));
+        xAxis.setAxisLineColor(text);
         yLAxis.setEnabled(false);
         yRAxis.setEnabled(false);
         xAxis.setValueFormatter(new MyXAxisFormatter());
         Legend legend = barChart.getLegend();
-        legend.setTextColor(getResources().getColor(R.color.colorText));
+        legend.setTextColor(text);
         BarData lineData = new BarData(dataSet);
         lineData.setValueTextSize(lineData.getBarWidth() * 15);
         lineData.setDrawValues(true);
         if (lineData.getEntryCount() == HOURS_IN_DAY) {
             lineData.setValueFormatter(new MyHourlyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par heure (en minutes)", Legend.LegendForm.CIRCLE, 12f,1f, null, yellow));
+            LE.add(new LegendEntry("Temps d'écran par heure (en minutes)",
+                    Legend.LegendForm.CIRCLE, 12f, 1f, null, yellow));
             legend.setCustom(LE);
         } else if (lineData.getEntryCount() == DAYS_IN_WEEK) {
             lineData.setValueFormatter(new MyDailyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par jour (hh:mm)", Legend.LegendForm.CIRCLE, 12f,1f, null, blue));
+            LE.add(new LegendEntry("Temps d'écran par jour (hh:mm)",
+                    Legend.LegendForm.CIRCLE, 12f, 1f, null, blue));
             legend.setCustom(LE);
         } else if (lineData.getEntryCount() == WEEKS_IN_MONTH) {
             lineData.setValueFormatter(new MyWeeklyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par semaine (hh:mm)", Legend.LegendForm.CIRCLE, 12f,1f, null, red));
+            LE.add(new LegendEntry("Temps d'écran par semaine (hh:mm)",
+                    Legend.LegendForm.CIRCLE, 12f, 1f, null, red));
             legend.setCustom(LE);
         } else {
             lineData.setValueFormatter(new MyMonthlyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par mois", Legend.LegendForm.CIRCLE, 12f,1f, null, green));
+            LE.add(new LegendEntry("Temps d'écran par mois",
+                    Legend.LegendForm.CIRCLE, 12f, 1f, null, green));
             legend.setCustom(LE);
         }
 
@@ -281,7 +274,7 @@ public class HistoryActivity extends SwipeActivity {
         barChart.setAutoScaleMinMaxEnabled(false);
         ArrayList<Integer> colorsLabel = new ArrayList<>();
         for (int i = 0; i < barLabels.size(); ++i)
-            colorsLabel.add(getResources().getColor(R.color.colorText));
+            colorsLabel.add(text);
         barChart.setXAxisRenderer(new MyXAxisRenderer(barChart.getViewPortHandler(), xAxis, barChart.getTransformer(null), colorsLabel));
         barChart.setScaleEnabled(false);
         barChart.setClickable(false);
@@ -346,7 +339,7 @@ public class HistoryActivity extends SwipeActivity {
         @Override
         public String getBarLabel(BarEntry barEntry) {
             String label = new DurationParser(c).parseToMinuteSecondsFormat((int) barEntry.getY());
-            if((int) barEntry.getY() == 0)
+            if ((int) barEntry.getY() == 0)
                 return "0";
             if (label.length() > 2)
                 if (label.charAt(2) == 's')

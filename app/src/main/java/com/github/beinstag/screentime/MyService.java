@@ -14,9 +14,11 @@ import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.view.Display;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import java.util.Timer;
@@ -41,16 +43,21 @@ public class MyService extends Service {
         dataManager = new DataManager(getApplicationContext());
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         String CHANNEL_ID = "MyServiceChannel";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            if (notificationManager != null) {
-                CharSequence name = "PersonalNotifications";
-                String description = "Include all personal notifications.";
+        screenDailyDuration = dataManager.loadScreenDuration();
+        screenHourlyDuration = dataManager.loadHourlyScreenDuration();
+
+        if (notificationManager != null) {
+            CharSequence name = "PersonalNotifications";
+            String description = "Include all personal notifications.";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 int importance = NotificationManager.IMPORTANCE_LOW;
                 NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, name, importance);
                 notificationChannel.setDescription(description);
                 assert (notificationManager != null);
+
                 notificationManager.createNotificationChannel(notificationChannel);
             }
+        }
         Intent notificationIntent = new Intent(this, HistoryActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
@@ -101,12 +108,16 @@ public class MyService extends Service {
             DisplayManager dm = (DisplayManager)
                     getSystemService(DISPLAY_SERVICE);
             if (dm != null) for (Display display : dm.getDisplays()) {
+
                 if (display.getState() != Display.STATE_OFF) {
                     return true;
                 }
             }
+            return false;
+        } else {
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            return powerManager != null && powerManager.isScreenOn();
         }
-        return false;
     }
 
 
@@ -114,26 +125,26 @@ public class MyService extends Service {
         if (isDisplayON()) { // If screen is active
             boolean isNewDay = dataManager.isTodayNewDayOfData();
             boolean isNewHour = dataManager.isNowNewHourOfData();
-            screenDailyDuration = dataManager.loadScreenDuration();
-            screenHourlyDuration = dataManager.loadHourlyScreenDuration();
+
             if (isNewDay) { // If it's a new day I save & reset both daily and hourly durations
                 dataManager.saveDailyScreenDuration(dataManager.loadDate(), screenDailyDuration);
                 screenDailyDuration = 0;
                 dataManager.saveHourlyScreenDuration(dataManager.loadTime(), screenHourlyDuration);
                 screenHourlyDuration = 0;
             } else {
-                screenDailyDuration += 1; // Adds one to the screen duration
                 if (isNewHour) { // If it's a new hour I only save & reset hourly duration
                     dataManager.saveHourlyScreenDuration(dataManager.loadTime(), screenHourlyDuration);
                     screenHourlyDuration = 0; // Restarts on a new day (after midnight)
                 } else { // If it's not a new hour
                     screenHourlyDuration += 1; // Adds one to the screen duration
                 }
+                screenDailyDuration += 1; // Adds one to the screen duration
             }
         }
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     void updateNotification() {
         // Parses screenDuration to readable duration sDuration "00 hours 00 minutes 00 seconds"
         String sDuration = new DurationParser(getApplicationContext()).parseToTextFormat(screenDailyDuration);
