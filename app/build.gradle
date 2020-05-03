@@ -6,12 +6,12 @@ android {
 
     defaultConfig {
         applicationId 'com.github.beinstag.screentime'
-        minSdkVersion 10
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        minSdkVersion 26
     }
 
     buildTypes {

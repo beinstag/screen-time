@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
@@ -62,20 +61,20 @@ public class HistoryActivity extends SwipeActivity {
         Button bWeek = findViewById(R.id.button);
         Button bDay = findViewById(R.id.button4);
 
-        background = getResources().getColor(R.color.colorBackground);
-        darkYellow = getResources().getColor(R.color.colorDarkYellow);
-        darkGreen = getResources().getColor(R.color.colorDarkGreen);
-        darkBlue = getResources().getColor(R.color.colorDarkBlue);
-        darkRed = getResources().getColor(R.color.colorDarkRed);
-        yellow = getResources().getColor(R.color.colorYellow);
-        green = getResources().getColor(R.color.colorGreen);
-        text = getResources().getColor(R.color.colorText);
-        blue = getResources().getColor(R.color.colorBlue);
-        red = getResources().getColor(R.color.colorRed);
+        background = getColor(R.color.colorBackground);
+        darkYellow = getColor(R.color.colorDarkYellow);
+        darkGreen = getColor(R.color.colorDarkGreen);
+        darkBlue = getColor(R.color.colorDarkBlue);
+        darkRed = getColor(R.color.colorDarkRed);
+        yellow = getColor(R.color.colorYellow);
+        green = getColor(R.color.colorGreen);
+        text = getColor(R.color.colorText);
+        blue = getColor(R.color.colorBlue);
+        red = getColor(R.color.colorRed);
 
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        configuration = getApplicationContext().getResources().getConfiguration();
+        configuration = getResources().getConfiguration();
         dataManager = new DataManager(getApplicationContext());
         barEntries = loadDayDataHistory();
 
@@ -161,7 +160,7 @@ public class HistoryActivity extends SwipeActivity {
             final Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DATE, -DAYS_IN_MONTH * i);
             barLabels.add(cal.getDisplayName(Calendar.MONTH, Calendar.SHORT,
-                    configuration.locale));
+                    configuration.getLocales().get(0)));
         }
         return entries;
     }
@@ -194,7 +193,7 @@ public class HistoryActivity extends SwipeActivity {
             final Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DATE, -i);
             barLabels.add(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT,
-                    configuration.locale));
+                    configuration.getLocales().get(0)));
         }
 
         return entries;
@@ -221,9 +220,7 @@ public class HistoryActivity extends SwipeActivity {
         assert wp != null;
         Display display = wp.getDefaultDisplay();
         Point size = new Point();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            display.getSize(size);
-        }
+        display.getSize(size);
         BarDataSet dataSet = new BarDataSet(entries, getString(R.string.app_name)); // add entries to dataset
         dataSet.setColors(color);
         dataSet.setValueTextColor(text);

@@ -12,15 +12,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
-import android.os.Build;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.view.Display;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,14 +47,12 @@ public class MyService extends Service {
         if (notificationManager != null) {
             CharSequence name = "PersonalNotifications";
             String description = "Include all personal notifications.";
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                int importance = NotificationManager.IMPORTANCE_LOW;
-                NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-                notificationChannel.setDescription(description);
-                assert (notificationManager != null);
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            notificationChannel.setDescription(description);
+            assert (notificationManager != null);
 
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
+            notificationManager.createNotificationChannel(notificationChannel);
         }
         Intent notificationIntent = new Intent(this, HistoryActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -90,11 +86,12 @@ public class MyService extends Service {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    computeScreenDuration();
+                    Date date = new Date();
+                    computeScreenDuration(date);
                     updateNotification();
                     updateWidget();
-                    dataManager.saveScreenDuration(screenDailyDuration);
-                    dataManager.saveHScreenDuration(screenHourlyDuration);
+                    dataManager.saveScreenDuration(screenDailyDuration,date);
+                    dataManager.saveHScreenDuration(screenHourlyDuration,date);
 
                 }
             }, 0, 1000);// in milliseconds
@@ -104,36 +101,31 @@ public class MyService extends Service {
     }
 
     boolean isDisplayON() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            DisplayManager dm = (DisplayManager)
-                    getSystemService(DISPLAY_SERVICE);
-            if (dm != null) for (Display display : dm.getDisplays()) {
 
-                if (display.getState() != Display.STATE_OFF) {
-                    return true;
-                }
+        DisplayManager dm = (DisplayManager)
+                getSystemService(DISPLAY_SERVICE);
+        if (dm != null) for (Display display : dm.getDisplays()) {
+
+            if (display.getState() != Display.STATE_OFF) {
+                return true;
             }
-            return false;
-        } else {
-            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-            return powerManager != null && powerManager.isScreenOn();
         }
+        return false;
     }
 
-
-    void computeScreenDuration() {
+    void computeScreenDuration(Date date) {
         if (isDisplayON()) { // If screen is active
-            boolean isNewDay = dataManager.isTodayNewDayOfData();
-            boolean isNewHour = dataManager.isNowNewHourOfData();
+            boolean isNewDay = dataManager.isTodayNewDayOfData(date);
+            boolean isNewHour = dataManager.isNowNewHourOfData(date);
 
             if (isNewDay) { // If it's a new day I save & reset both daily and hourly durations
-                dataManager.saveDailyScreenDuration(dataManager.loadDate(), screenDailyDuration);
+                dataManager.saveDailyScreenDuration(screenDailyDuration);
                 screenDailyDuration = 0;
-                dataManager.saveHourlyScreenDuration(dataManager.loadTime(), screenHourlyDuration);
+                dataManager.saveHourlyScreenDuration(screenHourlyDuration);
                 screenHourlyDuration = 0;
             } else {
                 if (isNewHour) { // If it's a new hour I only save & reset hourly duration
-                    dataManager.saveHourlyScreenDuration(dataManager.loadTime(), screenHourlyDuration);
+                    dataManager.saveHourlyScreenDuration(screenHourlyDuration);
                     screenHourlyDuration = 0; // Restarts on a new day (after midnight)
                 } else { // If it's not a new hour
                     screenHourlyDuration += 1; // Adds one to the screen duration
@@ -143,8 +135,6 @@ public class MyService extends Service {
         }
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     void updateNotification() {
         // Parses screenDuration to readable duration sDuration "00 hours 00 minutes 00 seconds"
         String sDuration = new DurationParser(getApplicationContext()).parseToTextFormat(screenDailyDuration);
