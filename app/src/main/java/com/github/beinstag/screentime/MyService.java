@@ -11,9 +11,10 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.PowerManager;
+import android.view.Display;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -95,32 +96,43 @@ public class MyService extends Service {
         return START_STICKY;
     }
 
-    void computeScreenDuration() {
+    boolean isDisplayON() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            DisplayManager dm = (DisplayManager)
+                    getSystemService(DISPLAY_SERVICE);
+            if (dm != null) for (Display display : dm.getDisplays()) {
+                if (display.getState() != Display.STATE_OFF) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-        if (pm != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            if (pm.isInteractive()) { // If screen is active
-                boolean isNewDay = dataManager.isTodayNewDayOfData();
-                boolean isNewHour = dataManager.isNowNewHourOfData();
-                screenDailyDuration = dataManager.loadScreenDuration();
-                screenHourlyDuration = dataManager.loadHourlyScreenDuration();
-                if (isNewDay) { // If it's a new day I save & reset both daily and hourly durations
-                    dataManager.saveDailyScreenDuration(dataManager.loadDate(), screenDailyDuration);
-                    screenDailyDuration = 0;
+
+    void computeScreenDuration() {
+        if (isDisplayON()) { // If screen is active
+            boolean isNewDay = dataManager.isTodayNewDayOfData();
+            boolean isNewHour = dataManager.isNowNewHourOfData();
+            screenDailyDuration = dataManager.loadScreenDuration();
+            screenHourlyDuration = dataManager.loadHourlyScreenDuration();
+            if (isNewDay) { // If it's a new day I save & reset both daily and hourly durations
+                dataManager.saveDailyScreenDuration(dataManager.loadDate(), screenDailyDuration);
+                screenDailyDuration = 0;
+                dataManager.saveHourlyScreenDuration(dataManager.loadTime(), screenHourlyDuration);
+                screenHourlyDuration = 0;
+            } else {
+                screenDailyDuration += 1; // Adds one to the screen duration
+                if (isNewHour) { // If it's a new hour I only save & reset hourly duration
                     dataManager.saveHourlyScreenDuration(dataManager.loadTime(), screenHourlyDuration);
-                    screenHourlyDuration = 0;
-                } else {
-                    screenDailyDuration += 1; // Adds one to the screen duration
-                    if (isNewHour) { // If it's a new hour I only save & reset hourly duration
-                        dataManager.saveHourlyScreenDuration(dataManager.loadTime(), screenHourlyDuration);
-                        screenHourlyDuration = 0; // Restarts on a new day (after midnight)
-                    } else { // If it's not a new hour
-                        screenHourlyDuration += 1; // Adds one to the screen duration
-                    }
+                    screenHourlyDuration = 0; // Restarts on a new day (after midnight)
+                } else { // If it's not a new hour
+                    screenHourlyDuration += 1; // Adds one to the screen duration
                 }
             }
         }
     }
+
 
     void updateNotification() {
         // Parses screenDuration to readable duration sDuration "00 hours 00 minutes 00 seconds"
