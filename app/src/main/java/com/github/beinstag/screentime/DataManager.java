@@ -59,7 +59,7 @@ class DataManager {
 
     int loadLastScreenDuration(){
         int lastScreenDuration = 0;
-        for(int i = 0 ; lastScreenDuration == 0 ; ++i) {
+        for(int i = 0 ; i < sharedPreferences.getAll().size() ; ++i) {
             lastScreenDuration = sharedPreferences.getInt(dateFormat.format(yesterday(i)),0);
         }
         return lastScreenDuration;
@@ -67,7 +67,7 @@ class DataManager {
 
     int loadLastHourlyScreenDuration(){
         int lastHourlyScreenDuration = 0;
-        for(int i = 0 ; lastHourlyScreenDuration == 0 ; ++i) {
+        for(int i = 0 ; i < hourPreferences.getAll().size() ; ++i) {
             lastHourlyScreenDuration = hourPreferences.getInt(hourFormat.format(pastHour(i)),0);
         }
         return lastHourlyScreenDuration;

@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.Nullable;
@@ -36,11 +35,6 @@ public class MyService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        dataManager = new DataManager(getApplicationContext());
-        screenDailyDuration =  dataManager.loadLastScreenDuration();
-        Log.d(TAG, "screenDailyDuration = " + screenDailyDuration);
-        screenHourlyDuration = dataManager.loadLastHourlyScreenDuration();
-        Log.d(TAG,"screenHourlyDuration = " + screenHourlyDuration);
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         String CHANNEL_ID = "MyServiceChannel";
 
@@ -79,7 +73,9 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        dataManager = new DataManager(getApplicationContext());
+        screenDailyDuration =  dataManager.loadLastScreenDuration();
+        screenHourlyDuration = dataManager.loadLastHourlyScreenDuration();
         //creates a timer which will increment the duration each seconds that the screen is interactive
         if (timer == null) {
             timer = new Timer();
