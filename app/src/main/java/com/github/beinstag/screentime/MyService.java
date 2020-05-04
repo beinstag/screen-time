@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.Nullable;
@@ -107,14 +108,17 @@ public class MyService extends Service {
     }
 
     void computeScreenDuration(Date now) {
+        Log.d(TAG, now.toString());
         if (isDisplayON()) { // If screen is active
             boolean isNewDay = dataManager.isNewDayOfData(now);
             boolean isNewHour = dataManager.isNewHourOfData(now);
             if (isNewDay) { // For a new day retrieve, save, reset both past day & hour durations
+                Log.d(TAG, "isNewDay");
                 screenDailyDuration = 0;
                 screenHourlyDuration = 0;
             } else {
                 if (isNewHour) { // For a new hour retrieve, save & reset past hour duration
+                    Log.d(TAG, "isNewHour");
                     screenDailyDuration++;
                     screenHourlyDuration = 0;
                 } else { // If it's not a new hour
@@ -124,6 +128,7 @@ public class MyService extends Service {
             }
             dataManager.saveScreenDuration(screenDailyDuration,now);
             dataManager.saveHScreenDuration(screenHourlyDuration,now);
+            Log.d(TAG, screenDailyDuration+" "+screenHourlyDuration);
         }
     }
 
