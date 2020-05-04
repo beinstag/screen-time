@@ -27,7 +27,7 @@
             android:stateNotNeeded="true"
             android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
-                <!-- 2 lines that specify Root Activity (laucher activity) -->
+                <!-- 2 lines that specify Root Activity (launcher activity) -->
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -35,7 +35,7 @@
         <activity
             android:name=".HistoryActivity"
             android:enabled="true"
-            android:excludeFromRecents="true"
+            android:excludeFromRecents="false"
             android:finishOnTaskLaunch="true"
             android:stateNotNeeded="true">
         </activity>

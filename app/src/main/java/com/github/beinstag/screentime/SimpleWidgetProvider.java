@@ -7,13 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
+import java.util.Date;
+
 public class SimpleWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
         DataManager dataManager = new DataManager(context);
-        int screenDuration = dataManager.loadScreenDuration();
+        int screenDuration = dataManager.loadScreenDuration(new Date());
         for (int widgetId : appWidgetIds) {
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.simple_widget);
 

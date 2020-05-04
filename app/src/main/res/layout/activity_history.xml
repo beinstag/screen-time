@@ -14,7 +14,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chart"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="1.0">
 
         <Button
             android:id="@+id/button4"
@@ -37,7 +37,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorYellow"
-            android:text="@string/hours" />
+            android:text="@string/hours"
+            android:textColor="@color/colorText" />
 
         <Button
             android:id="@+id/button"
@@ -45,7 +46,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorBlue"
-            android:text="@string/days" />
+            android:text="@string/days"
+            android:textColor="@color/colorText" />
 
         <Button
             android:id="@+id/button2"
@@ -53,7 +55,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorRed"
-            android:text="@string/weeks" />
+            android:text="@string/weeks"
+            android:textColor="@color/colorText" />
 
         <Button
             android:id="@+id/button3"
@@ -61,7 +64,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorGreen"
-            android:text="@string/months" />
+            android:text="@string/months"
+            android:textColor="@color/colorText" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

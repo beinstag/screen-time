@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
@@ -48,7 +49,13 @@ public class HistoryActivity extends SwipeActivity {
     int blue, darkBlue;
     int red, darkRed;
     int yellow, darkYellow;
-    int text, background;
+    int text, shadow;
+    int background;
+
+    Button bMonth;
+    Button bYear;
+    Button bWeek;
+    Button bDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,22 +63,23 @@ public class HistoryActivity extends SwipeActivity {
 
         setContentView(R.layout.activity_history);
 
-        Button bMonth = findViewById(R.id.button2);
-        Button bYear = findViewById(R.id.button3);
-        Button bWeek = findViewById(R.id.button);
-        Button bDay = findViewById(R.id.button4);
+        bMonth = findViewById(R.id.button2);
+        bYear = findViewById(R.id.button3);
+        bWeek = findViewById(R.id.button);
+        bDay = findViewById(R.id.button4);
 
-        background = getColor(R.color.colorBackground);
+
         darkYellow = getColor(R.color.colorDarkYellow);
         darkGreen = getColor(R.color.colorDarkGreen);
+        shadow = getColor(R.color.colorBackground);
         darkBlue = getColor(R.color.colorDarkBlue);
+        background = getColor(R.color.colorBlack);
         darkRed = getColor(R.color.colorDarkRed);
         yellow = getColor(R.color.colorYellow);
         green = getColor(R.color.colorGreen);
         text = getColor(R.color.colorText);
         blue = getColor(R.color.colorBlue);
         red = getColor(R.color.colorRed);
-
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         configuration = getResources().getConfiguration();
@@ -84,6 +92,7 @@ public class HistoryActivity extends SwipeActivity {
             public void onClick(View v) {
                 barEntries = loadDayDataHistory();
                 presentChart(barEntries, yellow);
+                activeButton(bDay);
             }
         });
         bWeek.setOnClickListener(new View.OnClickListener() {
@@ -91,6 +100,7 @@ public class HistoryActivity extends SwipeActivity {
             public void onClick(View v) {
                 barEntries = loadWeekDataHistory();
                 presentChart(barEntries, blue);
+                activeButton(bWeek);
             }
         });
         bMonth.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +108,7 @@ public class HistoryActivity extends SwipeActivity {
             public void onClick(View v) {
                 barEntries = loadMonthDataHistory();
                 presentChart(barEntries, red);
+                activeButton(bMonth);
             }
         });
         bYear.setOnClickListener(new View.OnClickListener() {
@@ -105,10 +116,28 @@ public class HistoryActivity extends SwipeActivity {
             public void onClick(View v) {
                 barEntries = loadYearDataHistory();
                 presentChart(barEntries, green);
+                activeButton(bYear);
             }
         });
 
         presentChart(barEntries, yellow);
+        activeButton(bDay);
+    }
+
+    void activeButton(Button button) {
+        bDay.setBackgroundColor(yellow);
+        bWeek.setBackgroundColor(blue);
+        bMonth.setBackgroundColor(red);
+        bYear.setBackgroundColor(green);
+        if (button != bDay) bDay.setBackgroundColor(background);
+        if (button != bWeek) bWeek.setBackgroundColor(background);
+        if (button != bMonth) bMonth.setBackgroundColor(background);
+        if (button != bYear) bYear.setBackgroundColor(background);
+        bDay.setTextColor(yellow);
+        bWeek.setTextColor(blue);
+        bMonth.setTextColor(red);
+        bYear.setTextColor(green);
+        button.setTextColor(background);
     }
 
     @Override
@@ -116,15 +145,19 @@ public class HistoryActivity extends SwipeActivity {
         if (barEntries.size() == HOURS_IN_DAY) {
             barEntries = loadYearDataHistory();
             presentChart(barEntries, green);
+            activeButton(bYear);
         } else if (barEntries.size() == DAYS_IN_WEEK) {
             barEntries = loadDayDataHistory();
             presentChart(barEntries, yellow);
+            activeButton(bDay);
         } else if (barEntries.size() == WEEKS_IN_MONTH) {
             barEntries = loadWeekDataHistory();
             presentChart(barEntries, blue);
+            activeButton(bWeek);
         } else {
             barEntries = loadMonthDataHistory();
             presentChart(barEntries, red);
+            activeButton(bMonth);
         }
     }
 
@@ -134,15 +167,19 @@ public class HistoryActivity extends SwipeActivity {
         if (barEntries.size() == HOURS_IN_DAY) {
             barEntries = loadWeekDataHistory();
             presentChart(barEntries, blue);
+            activeButton(bWeek);
         } else if (barEntries.size() == DAYS_IN_WEEK) {
             barEntries = loadMonthDataHistory();
             presentChart(barEntries, red);
+            activeButton(bMonth);
         } else if (barEntries.size() == WEEKS_IN_MONTH) {
             barEntries = loadYearDataHistory();
             presentChart(barEntries, green);
+            activeButton(bYear);
         } else {
             barEntries = loadDayDataHistory();
             presentChart(barEntries, yellow);
+            activeButton(bDay);
         }
     }
 
@@ -175,7 +212,6 @@ public class HistoryActivity extends SwipeActivity {
                 out += dataManager.loadPastScreenDuration(DAYS_IN_WEEK * i + j);
             }
             entries.add(new BarEntry(i, out));
-
             final Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DATE, -DAYS_IN_WEEK * i);
             barLabels.add("" + cal.get(Calendar.WEEK_OF_YEAR));
@@ -224,7 +260,7 @@ public class HistoryActivity extends SwipeActivity {
         BarDataSet dataSet = new BarDataSet(entries, getString(R.string.app_name)); // add entries to dataset
         dataSet.setColors(color);
         dataSet.setValueTextColor(text);
-        dataSet.setBarShadowColor(background);
+        dataSet.setBarShadowColor(shadow);
         dataSet.setHighlightEnabled(false);
         XAxis xAxis = barChart.getXAxis();
         YAxis yLAxis = barChart.getAxisLeft();
@@ -242,25 +278,25 @@ public class HistoryActivity extends SwipeActivity {
         if (lineData.getEntryCount() == HOURS_IN_DAY) {
             lineData.setValueFormatter(new MyHourlyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par heure (en minutes)",
+            LE.add(new LegendEntry(getString(R.string.dayLegend),
                     Legend.LegendForm.CIRCLE, 12f, 1f, null, yellow));
             legend.setCustom(LE);
         } else if (lineData.getEntryCount() == DAYS_IN_WEEK) {
             lineData.setValueFormatter(new MyDailyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par jour (hh:mm)",
+            LE.add(new LegendEntry(getString(R.string.weekLegend),
                     Legend.LegendForm.CIRCLE, 12f, 1f, null, blue));
             legend.setCustom(LE);
         } else if (lineData.getEntryCount() == WEEKS_IN_MONTH) {
             lineData.setValueFormatter(new MyWeeklyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par semaine (hh:mm)",
+            LE.add(new LegendEntry(getString(R.string.monthLegend),
                     Legend.LegendForm.CIRCLE, 12f, 1f, null, red));
             legend.setCustom(LE);
         } else {
             lineData.setValueFormatter(new MyMonthlyValueFormatter(getApplicationContext()));
             ArrayList<LegendEntry> LE = new ArrayList<>();
-            LE.add(new LegendEntry("Temps d'écran par mois",
+            LE.add(new LegendEntry(getString(R.string.yearLegend),
                     Legend.LegendForm.CIRCLE, 12f, 1f, null, green));
             legend.setCustom(LE);
         }
@@ -270,15 +306,17 @@ public class HistoryActivity extends SwipeActivity {
         barChart.setGridBackgroundColor(Color.TRANSPARENT);
         barChart.setAutoScaleMinMaxEnabled(false);
         ArrayList<Integer> colorsLabel = new ArrayList<>();
-        for (int i = 0; i < barLabels.size(); ++i)
-            colorsLabel.add(text);
-        barChart.setXAxisRenderer(new MyXAxisRenderer(barChart.getViewPortHandler(), xAxis, barChart.getTransformer(null), colorsLabel));
+        colorsLabel.add(legend.getEntries()[0].formColor);
+        for (int i = 1; i < barLabels.size(); ++i) colorsLabel.add(text);
+        barChart.setXAxisRenderer(new MyXAxisRenderer(barChart.getViewPortHandler(),
+                xAxis,
+                barChart.getTransformer(null),
+                colorsLabel));
         barChart.setScaleEnabled(false);
         barChart.setClickable(false);
         barChart.setDrawBarShadow(true);
         barChart.setDrawValueAboveBar(true);
         barChart.getDescription().setText("");
-
         barChart.invalidate();
     }
 
@@ -347,7 +385,6 @@ public class HistoryActivity extends SwipeActivity {
         }
     }
 
-
     static class MyXAxisFormatter extends ValueFormatter {
         @Override
         public String getAxisLabel(float value, AxisBase axis) {
@@ -393,9 +430,9 @@ public class HistoryActivity extends SwipeActivity {
 
                     String label = mXAxis.getValueFormatter().getAxisLabel(mXAxis.mEntries[i / 2], mXAxis);
                     int color = getColorForXValue((int) mXAxis.mEntries[i / 2]); //added
-
                     mAxisLabelPaint.setColor(color);
-
+                    mAxisLabelPaint.setTypeface(getTypeFaceForXValue((int) mXAxis.mEntries[i / 2]));
+                    mAxisLabelPaint.setTextSize(getTextSizeForXValue((int) mXAxis.mEntries[i / 2]));
                     if (mXAxis.isAvoidFirstLastClippingEnabled()) {
 
                         // avoid clipping of the last
@@ -419,12 +456,20 @@ public class HistoryActivity extends SwipeActivity {
             }
         }
 
+        private float getTextSizeForXValue(int index) {
+            if (index == 0) return 32f;
+            return 27f;
+        }
+
+
+        private Typeface getTypeFaceForXValue(int index) {
+            if (index == 0) return Typeface.DEFAULT_BOLD;
+            return Typeface.DEFAULT;
+        }
 
         private int getColorForXValue(int index) {
             if (index >= labelColors.size()) return mXAxis.getTextColor();
-
             if (index < 0) return mXAxis.getTextColor();
-            if (index == 0) return Color.RED;
             return labelColors.get(index);
         }
     }

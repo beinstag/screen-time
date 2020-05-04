@@ -10,4 +10,8 @@
     <string name="onyourphone">" segundos en tu pantalla."</string>
     <string name="notificationTitle">Hoy</string>
     <string name="icon">icono</string>
+    <string name="dayLegend">Tiempo de pantalla por hora (minutos)</string>
+    <string name="weekLegend">Tiempo de pantalla por días (HH:MM)</string>
+    <string name="monthLegend">Tiempo de pantalla por semana (HH:MM)</string>
+    <string name="yearLegend">Tiempo de pantalla por mes (días y horas)</string>
 </resources>

@@ -53,17 +53,24 @@ class DataManager {
     /**
      * Returns duration in seconds stored in shared preferences or 0
      */
-    int loadScreenDuration() {
-        return sharedPreferences.getInt(dateFormat.format(new Date()), 0);
+    int loadScreenDuration(Date date) {
+        return sharedPreferences.getInt(dateFormat.format(date), 0);
     }
 
-    /**
-     * Returns screenDuration (in seconds) of current time hour
-     *
-     * @return screenDuration (in seconds) of current time hour
-     */
-    int loadHourlyScreenDuration() {
-        return hourPreferences.getInt(hourFormat.format(new Date()), 0);
+    int loadLastScreenDuration(){
+        int lastScreenDuration = 0;
+        for(int i = 0 ; lastScreenDuration == 0 ; ++i) {
+            lastScreenDuration = sharedPreferences.getInt(dateFormat.format(yesterday(i)),0);
+        }
+        return lastScreenDuration;
+    }
+
+    int loadLastHourlyScreenDuration(){
+        int lastHourlyScreenDuration = 0;
+        for(int i = 0 ; lastHourlyScreenDuration == 0 ; ++i) {
+            lastHourlyScreenDuration = hourPreferences.getInt(hourFormat.format(pastHour(i)),0);
+        }
+        return lastHourlyScreenDuration;
     }
 
     /**
@@ -71,7 +78,7 @@ class DataManager {
      *
      * @return true if current time hour is different from last time hour this DataManager was used
      */
-    boolean isNowNewHourOfData(Date date) {
+    boolean isNewHourOfData(Date date) {
         return !loadHour().equals(hourFormat.format(date));
     }
 
@@ -80,7 +87,7 @@ class DataManager {
      *
      * @return true if current day is different from last day this DataManager was used
      */
-    boolean isTodayNewDayOfData(Date date) {
+    boolean isNewDayOfData(Date date) {
         return !loadDate().equals(dateFormat.format(date));
     }
 
@@ -100,27 +107,6 @@ class DataManager {
      */
     private String loadHour() {
         return datePreferences.getString(HOUR, hourFormat.format(new Date()));
-    }
-
-    /**
-     * Saves the daily screenDuration to daily storage shared preferences
-     * @param screenDuration duration of active screen of day
-     */
-    void saveDailyScreenDuration(int screenDuration) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(loadDate(), screenDuration);
-        editor.apply();
-    }
-
-    /**
-     * Saves the hourly screenDuration to hourly storage shared preferences
-     *
-     * @param screenDuration hourly screen duration to be saved
-     */
-    void saveHourlyScreenDuration(int screenDuration) {
-        SharedPreferences.Editor editor = hourPreferences.edit();
-        editor.putInt(loadHour(), screenDuration);
-        editor.apply();
     }
 
     /**
@@ -147,7 +133,7 @@ class DataManager {
         editor.apply();
 
         SharedPreferences.Editor dateEditor = datePreferences.edit();
-        editor.putString(DATE, dateFormat.format(date));
+        dateEditor.putString(DATE, dateFormat.format(date));
         dateEditor.apply();
     }
 

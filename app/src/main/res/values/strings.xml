@@ -10,4 +10,8 @@
     <string name="onyourphone">" on your phone."</string>
     <string name="notificationTitle">Today</string>
     <string name="icon">icon</string>
+    <string name="dayLegend">Screen Time per hour (in minutes)</string>
+    <string name="weekLegend">Screen Time per day (HH:MM)</string>
+    <string name="monthLegend">Screen Time per week (HH:MM)</string>
+    <string name="yearLegend">Screen Time per month (in days and hours)</string>
 </resources>

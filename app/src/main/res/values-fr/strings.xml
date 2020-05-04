@@ -10,4 +10,8 @@
     <string name="notificationTitle">Aujourd\'hui</string>
     <string name="icon">icône</string>
     <string name="seconds">" secondes"</string>
+    <string name="dayLegend">Temps d\'écran par heure (en minutes)</string>
+    <string name="weekLegend">Temps d\'écran par jour (HH:MM)</string>
+    <string name="monthLegend">Temps d\'écran par semaine (HH:MM)</string>
+    <string name="yearLegend">Temps d\'écran par mois (en jours et heures)</string>
 </resources>
