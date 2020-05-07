@@ -22,10 +22,11 @@ import androidx.core.app.NotificationCompat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressLint("Registered")
 public class MyService extends Service {
-
+    private static AtomicInteger activitiesLaunched = new AtomicInteger(0);
     private final int NOTIFICATION_ID = 1;
     private static final String TAG = "MyService";
     int screenDailyDuration, screenHourlyDuration;
@@ -33,8 +34,10 @@ public class MyService extends Service {
     private NotificationManager notificationManager;
     private DataManager dataManager;
     private static Timer timer;
+
     @Override
     public void onCreate() {
+
         super.onCreate();
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         String CHANNEL_ID = "MyServiceChannel";
@@ -64,6 +67,7 @@ public class MyService extends Service {
         startForeground(NOTIFICATION_ID, notification);
     }
 
+
     private void updateWidget() {
         Intent intent = new Intent(this, SimpleWidgetProvider.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
@@ -74,24 +78,25 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        dataManager = new DataManager(getApplicationContext());
-        screenDailyDuration =  dataManager.loadLastScreenDuration();
-        screenHourlyDuration = dataManager.loadLastHourlyScreenDuration();
-        //creates a timer which will increment the duration each seconds that the screen is interactive
-        if (timer == null) {
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Date now = new Date();
-                    computeScreenDuration(now);
-                    updateNotification(now);
-                    updateWidget();
-                }
-            }, 0, 1000);// in milliseconds
-        }
+        if (activitiesLaunched.incrementAndGet() <= 1) {
+            dataManager = new DataManager(getApplicationContext());
+            screenDailyDuration = dataManager.loadLastScreenDuration();
+            screenHourlyDuration = dataManager.loadLastHourlyScreenDuration();
+            if (timer == null) {
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        Date now = new Date();
+                        computeScreenDuration(now);
+                        updateNotification(now);
+                        updateWidget();
+                    }
+                }, 0, 1000);// in milliseconds
+            }
 
-        return START_STICKY;
+            return START_STICKY;
+        } return START_REDELIVER_INTENT;
     }
 
     boolean isDisplayON() {
@@ -126,9 +131,9 @@ public class MyService extends Service {
                     screenHourlyDuration++;
                 }
             }
-            dataManager.saveScreenDuration(screenDailyDuration,now);
-            dataManager.saveHScreenDuration(screenHourlyDuration,now);
-            Log.d(TAG, screenDailyDuration+" "+screenHourlyDuration);
+            dataManager.saveScreenDuration(screenDailyDuration, now);
+            dataManager.saveHScreenDuration(screenHourlyDuration, now);
+            Log.d(TAG, screenDailyDuration + " " + screenHourlyDuration);
         }
     }
 
@@ -158,6 +163,8 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy() {
+        //remove this activity from the counter
+        activitiesLaunched.getAndDecrement();
         super.onDestroy();
     }
 

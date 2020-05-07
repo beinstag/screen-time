@@ -13,7 +13,7 @@ public class UserPresentReceiver extends BroadcastReceiver {
             String log = "Action: " + intent.getAction() + "\n" +
                     "URI: " + intent.toUri(Intent.URI_INTENT_SCHEME) + "\n";
             Log.d("UserPresentReceiver", log);
-            Intent i = new Intent(context, MainActivity.class);
+            Intent i = new Intent(context, HistoryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }

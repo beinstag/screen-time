@@ -1,6 +1,7 @@
 package com.github.beinstag.screentime;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -35,11 +37,13 @@ import java.util.Calendar;
 
 public class HistoryActivity extends SwipeActivity {
 
+
     private static final int HOURS_IN_DAY = 14;
     private static final int DAYS_IN_WEEK = 7;
     private static final int WEEKS_IN_MONTH = 8;
     private static final int DAYS_IN_MONTH = 30;
     private static final int MONTH_IN_YEAR = 12;
+
     ArrayList<BarEntry> barEntries;
     static ArrayList<String> barLabels;
 
@@ -61,13 +65,11 @@ public class HistoryActivity extends SwipeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        Intent intent = new Intent(this, MyService.class);
+        ContextCompat.startForegroundService(this, intent);
+
         setContentView(R.layout.activity_history);
-
-        bMonth = findViewById(R.id.button2);
-        bYear = findViewById(R.id.button3);
-        bWeek = findViewById(R.id.button);
-        bDay = findViewById(R.id.button4);
-
 
         darkYellow = getColor(R.color.colorDarkYellow);
         darkGreen = getColor(R.color.colorDarkGreen);
@@ -86,6 +88,10 @@ public class HistoryActivity extends SwipeActivity {
         dataManager = new DataManager(getApplicationContext());
         barEntries = loadDayDataHistory();
 
+        bMonth = findViewById(R.id.button2);
+        bYear = findViewById(R.id.button3);
+        bWeek = findViewById(R.id.button);
+        bDay = findViewById(R.id.button4);
 
         bDay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +129,7 @@ public class HistoryActivity extends SwipeActivity {
         presentChart(barEntries, yellow);
         activeButton(bDay);
     }
+
 
     void activeButton(Button button) {
         bDay.setBackgroundColor(yellow);
@@ -181,6 +188,7 @@ public class HistoryActivity extends SwipeActivity {
             presentChart(barEntries, yellow);
             activeButton(bDay);
         }
+
     }
 
     public ArrayList<BarEntry> loadYearDataHistory() {
@@ -473,6 +481,7 @@ public class HistoryActivity extends SwipeActivity {
             return labelColors.get(index);
         }
     }
+
 }
 
 
